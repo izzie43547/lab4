@@ -44,9 +44,9 @@ def read_notes():
 def remove_note() -> str:
     p = Path(NOTES_PATH) / NOTES_FILE
 
-    # check if storage file exists, if not return.
+    # check if storage file exists, if not raise FileNotFoundError
     if not p.exists():
-        return
+        raise FileNotFoundError(f"File {NOTES_FILE} not found")
     
     print("Here are your notes: \n")
     # open and write user note to file
@@ -84,18 +84,38 @@ def remove_note() -> str:
 def run():
     note = input("Please enter a note (enter :d to delete a note or :q to exit):  ")
     if note == ":d":
-        note = remove_note()
-        print(f"The following note has been removed: \n\n {note}")
+        try:
+            note = remove_note()
+            print(f"The following note has been removed: \n\n {note}")
+        except FileNotFoundError:
+            print(f"Error: {NOTES_FILE} not found. Cannot remove notes.")
     elif note == ":q":
         return
     else:    
         save_note(note)
     run()
 
+def test_functions():
+    # Test is_int function with various inputs
+    assert is_int("123") == True, "is_int should return True for valid integer string"
+    assert is_int("-456") == True, "is_int should return True for negative integer string"
+    assert is_int("abc") == False, "is_int should return False for non-integer string"
+    assert is_int("12.34") == False, "is_int should return False for float string"
+    assert is_int("") == False, "is_int should return False for empty string"
+    
+    # Test remove_note function when file doesn't exist
+    import os
+    if os.path.exists(NOTES_FILE):
+        os.remove(NOTES_FILE)
+    try:
+        remove_note()
+        assert False, "remove_note should raise FileNotFoundError when file doesn't exist"
+    except FileNotFoundError:
+        pass  # Expected behavior
 
 if __name__ == "__main__":
+    # Run tests before starting the program
+    test_functions()
     print("Welcome to PyNote! \n")
     read_notes()
-
     run()
-
